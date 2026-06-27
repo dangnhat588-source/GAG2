@@ -3,6 +3,11 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+if not LocalPlayer then
+    Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+    LocalPlayer = Players.LocalPlayer
+end
+
 local TARGET_NAMES = {"EYTHANGDADEN", "NHATPROCOM"}
 
 local screenGui = Instance.new("ScreenGui")
@@ -115,19 +120,38 @@ while task.wait(1) do
         end
 
         local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
-        local friendReq = playerGui and playerGui:FindFirstChild("FriendRequest")
-        local frame = friendReq and friendReq:FindFirstChild("Frame")
-        if frame then
-            for _, child in ipairs(frame:GetChildren()) do
-                if string.match(child.Name, "^FriendRequest_") then
-                    local buttons = child:FindFirstChild("Buttons")
-                    local friendAcceptBtn = buttons and buttons:FindFirstChild("AcceptButton")
-                    if friendAcceptBtn and friendAcceptBtn.Visible == true then
-                        if firesignal then
-                            firesignal(friendAcceptBtn.Activated)
-                        else
-                            for _, connection in pairs(getconnections(friendAcceptBtn.Activated)) do
-                                connection:Fire()
+        if playerGui then
+            for _, gui in ipairs(playerGui:GetChildren()) do
+                if gui.Name == "FriendRequest" then
+                    local frame = gui:FindFirstChild("Frame")
+                    if frame then
+                        for _, child in ipairs(frame:GetChildren()) do
+                            if string.match(child.Name, "^FriendRequest_") then
+                                local buttons = child:FindFirstChild("Buttons")
+                                local friendAcceptBtn = buttons and buttons:FindFirstChild("AcceptButton")
+                                if friendAcceptBtn and friendAcceptBtn.Visible == true then
+                                    if firesignal then
+                                        firesignal(friendAcceptBtn.Activated)
+                                    else
+                                        for _, connection in pairs(getconnections(friendAcceptBtn.Activated)) do
+                                            connection:Fire()
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                else
+                    local buttons = gui:FindFirstChild("Buttons", true)
+                    if buttons then
+                        local acceptBtn = buttons:FindFirstChild("AcceptButton")
+                        if acceptBtn and acceptBtn.Visible then
+                            if firesignal then
+                                firesignal(acceptBtn.Activated)
+                            elseif getconnections then
+                                for _, connection in pairs(getconnections(acceptBtn.Activated)) do
+                                    connection:Fire()
+                                end
                             end
                         end
                     end
