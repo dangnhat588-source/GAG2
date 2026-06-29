@@ -1,4 +1,4 @@
-local RunService = game:GetService("RunService")
+Local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -52,40 +52,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
-local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local backpack = LocalPlayer:FindFirstChild("Backpack")
-
-if character and backpack then
-    local eggs = {}
-    for _, item in ipairs(backpack:GetChildren()) do
-        if string.match(item.Name, "Egg$") and item:IsA("Tool") then
-            table.insert(eggs, item)
-        end
-    end
-
-    if #eggs > 0 then
-        for _, item in ipairs(eggs) do
-            if item and (item.Parent == backpack or item.Parent == character) then
-                -- Lấy chính xác Attribute "Count" từ bảng thuộc tính bạn vừa chụp
-                local attributeCount = item:GetAttribute("Count")
-                local loopCount = tonumber(attributeCount) or 1
-                
-                item.Parent = character
-                task.wait(0.3)
-                
-                for i = 1, loopCount do
-                    if not item or item.Parent ~= character then 
-                        break 
-                    end
-                    
-                    item:Activate()
-                    task.wait(0.4)
-                end
-            end
-        end
-    end
-end
-
 local ItemList = {
     "Legendary Sprinkler",
     "Mushroom",
@@ -123,13 +89,13 @@ while task.wait(1) do
         local targetPlayer = getTargetPlayer()
         
         if targetPlayer then
-            local char = LocalPlayer.Character
-            local bp = LocalPlayer:FindFirstChild("Backpack")
+            local character = LocalPlayer.Character
+            local backpack = LocalPlayer:FindFirstChild("Backpack")
             
-            if char and bp then
+            if character and backpack then
                 for _, itemName in ipairs(ItemList) do
-                    local item = bp:FindFirstChild(itemName)
-                    if item then item.Parent = char end
+                    local item = backpack:FindFirstChild(itemName)
+                    if item then item.Parent = character end
                 end
                 
                 local targetChar = targetPlayer.Character
@@ -139,7 +105,7 @@ while task.wait(1) do
                     
                     local isHoldingItem = false
                     for _, itemName in ipairs(ItemList) do
-                        if char:FindFirstChild(itemName) then
+                        if character:FindFirstChild(itemName) then
                             isHoldingItem = true
                             break
                         end
