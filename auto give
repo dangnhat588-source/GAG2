@@ -52,6 +52,27 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
+local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local backpack = LocalPlayer:FindFirstChild("Backpack")
+
+if character and backpack then
+    local eggs = {}
+    for _, item in ipairs(backpack:GetChildren()) do
+        if string.match(item.Name, "Egg$") and item:IsA("Tool") then
+            table.insert(eggs, item)
+        end
+    end
+
+    if #eggs > 0 then
+        for _, item in ipairs(eggs) do
+            item.Parent = character
+            task.wait(0.1)
+            item:Activate()
+            task.wait(0.2)
+        end
+    end
+end
+
 local ItemList = {
     "Legendary Sprinkler",
     "Mushroom",
@@ -89,13 +110,13 @@ while task.wait(1) do
         local targetPlayer = getTargetPlayer()
         
         if targetPlayer then
-            local character = LocalPlayer.Character
-            local backpack = LocalPlayer:FindFirstChild("Backpack")
+            local char = LocalPlayer.Character
+            local bp = LocalPlayer:FindFirstChild("Backpack")
             
-            if character and backpack then
+            if char and bp then
                 for _, itemName in ipairs(ItemList) do
-                    local item = backpack:FindFirstChild(itemName)
-                    if item then item.Parent = character end
+                    local item = bp:FindFirstChild(itemName)
+                    if item then item.Parent = char end
                 end
                 
                 local targetChar = targetPlayer.Character
@@ -105,7 +126,7 @@ while task.wait(1) do
                     
                     local isHoldingItem = false
                     for _, itemName in ipairs(ItemList) do
-                        if character:FindFirstChild(itemName) then
+                        if char:FindFirstChild(itemName) then
                             isHoldingItem = true
                             break
                         end
