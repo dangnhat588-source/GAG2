@@ -65,10 +65,23 @@ if character and backpack then
 
     if #eggs > 0 then
         for _, item in ipairs(eggs) do
-            item.Parent = character
-            task.wait(0.1)
-            item:Activate()
-            task.wait(0.2)
+            if item and (item.Parent == backpack or item.Parent == character) then
+                -- Lấy chính xác Attribute "Count" từ bảng thuộc tính bạn vừa chụp
+                local attributeCount = item:GetAttribute("Count")
+                local loopCount = tonumber(attributeCount) or 1
+                
+                item.Parent = character
+                task.wait(0.3)
+                
+                for i = 1, loopCount do
+                    if not item or item.Parent ~= character then 
+                        break 
+                    end
+                    
+                    item:Activate()
+                    task.wait(0.4)
+                end
+            end
         end
     end
 end
