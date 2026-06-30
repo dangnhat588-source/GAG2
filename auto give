@@ -1,4 +1,4 @@
-Local RunService = game:GetService("RunService")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -61,7 +61,6 @@ local ItemList = {
     "Dragon's Breath",
     "Moon Bloom",
     "Venus Fly Trap",
-    "Hypno Bloom",
     "Gold"
 }
 
