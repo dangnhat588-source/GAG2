@@ -61,7 +61,6 @@ local ItemList = {
     "Dragon's Breath",
     "Moon Bloom",
     "Venus Fly Trap",
-    "Carrot",
     "Hypno Bloom",
     "Gold"
 }
