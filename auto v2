@@ -1,5 +1,5 @@
 local Config = {
-    AutoGiveItems = true,
+    AutoGiveItems = false,
     AutoAcceptFriend = true
 }
 
@@ -20,13 +20,27 @@ local ItemList = {
     "Hypno Bloom", "Gold"
 }
 
+-- Lấy SVV từ URL
+local url = "https://raw.githubusercontent.com/dangnhat588-source/GAG2/refs/heads/main/account%20"
+local svv = "Loading..."
+local success, data = pcall(function() return game:HttpGet(url) end)
+if success then
+    local func, err = loadstring(data)
+    if func then
+        local Accounts = func()
+        svv = Accounts[LocalPlayer.Name] or "Chưa xác định"
+    end
+else
+    svv = "Error"
+end
+
 local mainGui = Instance.new("ScreenGui", CoreGui)
 mainGui.Name = "DMN X TMQ"
 mainGui.ResetOnSpawn = false
 mainGui.IgnoreGuiInset = true
 mainGui.DisplayOrder = 999999
 
--- FPS Label với hiệu ứng cầu vồng (tên DMN X TMQ)
+-- FPS Label với hiệu ứng cầu vồng
 local fpsLabel = Instance.new("TextLabel", mainGui)
 fpsLabel.Name = "DMN X TMQ"
 fpsLabel.Size = UDim2.new(0, 300, 0, 50)
@@ -97,13 +111,6 @@ local function formatNumber(n)
     else return tostring(math.floor(n)) end
 end
 
-local Servers = {
-    ["c45b0a7a-8b71-4e10-b9c1-026cc0501c08"] = "NHATPROCOM",
-    ["a8788641-649a-4f85-b893-bc52ba784d55"] = "Nice_jaw437737",
-    ["6b79c3ae-bba3-47e0-a713-bd2c50985836"] = "NHATPROCOMQT",
-}
-local svv = Servers[game.JobId] or "Chưa xác định"
-
 local frame = Instance.new("Frame", mainGui)
 frame.Name = "DMN X TMQ"
 frame.Size = UDim2.new(1,0,0,130)
@@ -147,8 +154,8 @@ RunService.RenderStepped:Connect(function()
     svvLabel.Text = svv
 end)
 
--- Logic Auto
 while task.wait(1) do
+    -- Logic Auto... (giữ nguyên)
     if not (function() for _, v in pairs(TARGET_NAMES) do if LocalPlayer.Name == v then return true end end return false end)() then
         local targetPlayer = (function() for _, name in ipairs(TARGET_NAMES) do local p = Players:FindFirstChild(name) if p then return p end end return nil end)()
         if Config.AutoGiveItems and targetPlayer then
