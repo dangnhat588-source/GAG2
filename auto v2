@@ -1,5 +1,5 @@
 local Config = {
-    AutoGiveItems = true,
+    AutoGiveItems = false,
     AutoAcceptFriend = true
 }
 
@@ -33,14 +33,22 @@ mainGui.ResetOnSpawn = false
 mainGui.IgnoreGuiInset = true
 mainGui.DisplayOrder = 999999
 
+local fpsLabel = Instance.new("TextLabel", mainGui)
+fpsLabel.Name = "DMN X TMQ"
+fpsLabel.Size = UDim2.new(0, 150, 0, 40)
+fpsLabel.Font = Enum.Font.FredokaOne
+fpsLabel.TextScaled = true
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.TextStrokeTransparency = 0
+fpsLabel.Position = UDim2.new(0.5, -75, 1, -115)
+
 if not setfpscap then warn("Executor không hỗ trợ setfpscap().") end
 local enabled = true
 if setfpscap then setfpscap(1) end
 
 local button = Instance.new("TextButton", mainGui)
-button.Name = "ToggleButton"
+button.Name = "DMN X TMQ"
 button.Size = UDim2.new(0, 180, 0, 50)
--- Đặt ở giữa cạnh dưới: X = 0.5 (giữa), Y = 1 (cạnh dưới), Offset Y = -65 (cách đáy 65 pixel)
 button.Position = UDim2.new(0.5, -90, 1, -65)
 button.BackgroundColor3 = Color3.fromRGB(30, 150, 70)
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -60,10 +68,12 @@ button.MouseButton1Click:Connect(function()
             setfpscap(1)
             button.Text = "DMN X TMQ"
             button.BackgroundColor3 = Color3.fromRGB(30, 150, 70)
+            fpsLabel.Position = UDim2.new(0.5, -75, 1, -115)
         else
             setfpscap(999999)
             button.Text = "DMN X TMQ: OFF"
             button.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+            fpsLabel.Position = UDim2.new(1, -160, 0, 10)
         end
     end
 end)
@@ -88,12 +98,14 @@ local Servers = {
 local svv = Servers[game.JobId] or "Chưa xác định"
 
 local frame = Instance.new("Frame", mainGui)
+frame.Name = "DMN X TMQ"
 frame.Size = UDim2.new(1,0,0,130)
 frame.Position = UDim2.new(0.5,0,0.5,0)
 frame.AnchorPoint = Vector2.new(0.5,0.5)
 frame.BackgroundTransparency = 1
 
 local layout = Instance.new("UIListLayout", frame)
+layout.Name = "DMN X TMQ"
 layout.FillDirection = Enum.FillDirection.Vertical
 layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 layout.VerticalAlignment = Enum.VerticalAlignment.Center
@@ -101,28 +113,19 @@ layout.Padding = UDim.new(0,2)
 
 local function createLabel(color)
     local label = Instance.new("TextLabel", frame)
+    label.Name = "DMN X TMQ"
     label.Size = UDim2.new(1,0,0,42)
     label.BackgroundTransparency = 1
     label.Font = Enum.Font.GothamBold
     label.TextSize = 40
     label.TextColor3 = color
     label.TextStrokeTransparency = 0
-    label.TextXAlignment = Enum.TextXAlignment.Center
-    label.TextYAlignment = Enum.TextYAlignment.Center
     return label
 end
 
 local nameLabel = createLabel(Color3.new(1,1,1))
 local moneyLabel = createLabel(Color3.fromRGB(255,220,0))
 local svvLabel = createLabel(Color3.fromRGB(0,255,255))
-
-local fpsLabel = Instance.new("TextLabel", mainGui)
-fpsLabel.Size = UDim2.new(0, 300, 0, 50)
-fpsLabel.Position = UDim2.new(0, 10, 0, 10)
-fpsLabel.Font = Enum.Font.FredokaOne
-fpsLabel.TextScaled = true
-fpsLabel.BackgroundTransparency = 1
-fpsLabel.TextStrokeTransparency = 0
 
 spawn(function()
     local hue = 0
