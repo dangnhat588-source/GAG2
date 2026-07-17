@@ -1,5 +1,5 @@
 local Config = {
-    AutoGiveItems = false,
+    AutoGiveItems = true,
     AutoAcceptFriend = true
 }
 
@@ -33,23 +33,25 @@ mainGui.ResetOnSpawn = false
 mainGui.IgnoreGuiInset = true
 mainGui.DisplayOrder = 999999
 
+-- FPS Label luôn giữ ở góc trái trên
 local fpsLabel = Instance.new("TextLabel", mainGui)
 fpsLabel.Name = "DMN X TMQ"
 fpsLabel.Size = UDim2.new(0, 150, 0, 40)
+fpsLabel.Position = UDim2.new(0, 10, 0, 10)
 fpsLabel.Font = Enum.Font.FredokaOne
 fpsLabel.TextScaled = true
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.TextStrokeTransparency = 0
-fpsLabel.Position = UDim2.new(0.5, -75, 1, -115)
 
 if not setfpscap then warn("Executor không hỗ trợ setfpscap().") end
 local enabled = true
 if setfpscap then setfpscap(1) end
 
+-- Nút điều khiển
 local button = Instance.new("TextButton", mainGui)
 button.Name = "DMN X TMQ"
 button.Size = UDim2.new(0, 180, 0, 50)
-button.Position = UDim2.new(0.5, -90, 1, -65)
+button.Position = UDim2.new(0.5, -90, 1, -65) -- Bắt đầu ở giữa dưới
 button.BackgroundColor3 = Color3.fromRGB(30, 150, 70)
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
 button.Text = "DMN X TMQ"
@@ -68,12 +70,12 @@ button.MouseButton1Click:Connect(function()
             setfpscap(1)
             button.Text = "DMN X TMQ"
             button.BackgroundColor3 = Color3.fromRGB(30, 150, 70)
-            fpsLabel.Position = UDim2.new(0.5, -75, 1, -115)
+            button.Position = UDim2.new(0.5, -90, 1, -65) -- Về giữa dưới
         else
             setfpscap(999999)
             button.Text = "DMN X TMQ: OFF"
             button.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
-            fpsLabel.Position = UDim2.new(1, -160, 0, 10)
+            button.Position = UDim2.new(1, -190, 0, 15) -- Lên phải trên
         end
     end
 end)
