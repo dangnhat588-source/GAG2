@@ -1,16 +1,15 @@
 return {
     -- NHATPROCOM
-    ["dmn_nhatdzvc4"] = "NHATPROCOM",
-    ["dmn_nhatdzvc18"] = "NHATPROCOM",
-    ["dmn_nhatdzvc3"] = "NHATPROCOM",
-    ["dmn_nhatdzvc5"] = "NHATPROCOM",
+    ["dmn_nhatdzvc1"] = "NHATPROCOM",
     ["dmn_nhatdzvc2"] = "NHATPROCOM",
-    ["dmn_nhatdzvc19"] = "NHATPROCOM",
+    ["dmn_nhatdzvc3"] = "NHATPROCOM",
+    ["dmn_nhatdzvc4"] = "NHATPROCOM",
+    ["dmn_nhatdzvc5"] = "NHATPROCOM",
     ["dmn_nhatdzvc6"] = "NHATPROCOM",
+    ["dmn_nhatdzvc"] = "NHATPROCOM",
 
     -- Nice_Jaw437737
     ["dmn_nhatdzvc13"] = "Nice_Jaw437737",
-    ["Nice_Jaw437737"] = "Nice_Jaw437737",
     ["dmn_nhatdzvc14"] = "Nice_Jaw437737",
     ["dmn_nhatdzvc15"] = "Nice_Jaw437737",
     ["dmn_nhatdzvc18"] = "Nice_Jaw437737",
@@ -18,11 +17,11 @@ return {
     ["dmn_nhatdzvc20"] = "Nice_Jaw437737",
 
     -- NHATPROCOMQT
-    ["dmn_nhatdzvc13"] = "NHATPROCOMQT",
     ["dmn_nhatdzvc7"] = "NHATPROCOMQT",
     ["dmn_nhatdzvc8"] = "NHATPROCOMQT",
     ["dmn_nhatdzvc9"] = "NHATPROCOMQT",
     ["dmn_nhatdzvc10"] = "NHATPROCOMQT",
-    ["dmn_nhatdzvc12"] = "NHATPROCOMQT",
     ["dmn_nhatdzvc11"] = "NHATPROCOMQT",
+    ["dmn_nhatdzvc12"] = "NHATPROCOMQT",
+    ["dmn_nhatdzvc16"] = "NHATPROCOMQT",
 }
