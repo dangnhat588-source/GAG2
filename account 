@@ -1,12 +1,12 @@
 return {
     -- NHATPROCOM
-    ["dmn_nhatdzvc1"] = "NHATPROCOM",
-    ["dmn_nhatdzvc2"] = "NHATPROCOM",
-    ["dmn_nhatdzvc3"] = "NHATPROCOM",
-    ["dmn_nhatdzvc4"] = "NHATPROCOM",
-    ["dmn_nhatdzvc5"] = "NHATPROCOM",
-    ["dmn_nhatdzvc6"] = "NHATPROCOM",
-    ["dmn_nhatdzvc17"] = "NHATPROCOM",
+    ["dmn_nhatdzvc1"] = "EYTHANGDADEN",
+    ["dmn_nhatdzvc2"] = "EYTHANGDADEN",
+    ["dmn_nhatdzvc3"] = "EYTHANGDADEN",
+    ["dmn_nhatdzvc4"] = "EYTHANGDADEN",
+    ["dmn_nhatdzvc5"] = "EYTHANGDADEN",
+    ["dmn_nhatdzvc6"] = "EYTHANGDADEN",
+    ["dmn_nhatdzvc17"] = "EYTHANGDADEN",
 
     -- Nice_Jaw437737
     ["dmn_nhatdzvc13"] = "Nice_Jaw437737",
@@ -17,11 +17,11 @@ return {
     ["dmn_nhatdzvc20"] = "Nice_Jaw437737",
 
     -- NHATPROCOMQT
-    ["dmn_nhatdzvc7"] = "EYTHANGDADEN",
-    ["dmn_nhatdzvc8"] = "EYTHANGDADEN",
-    ["dmn_nhatdzvc9"] = "EYTHANGDADEN",
-    ["dmn_nhatdzvc10"] = "EYTHANGDADEN",
-    ["dmn_nhatdzvc11"] = "EYTHANGDADEN",
-    ["dmn_nhatdzvc12"] = "EYTHANGDADEN",
-    ["dmn_nhatdzvc16"] = "EYTHANGDADEN",
+    ["dmn_nhatdzvc7"] = "NHATPROCOM",
+    ["dmn_nhatdzvc8"] = "NHATPROCOM",
+    ["dmn_nhatdzvc9"] = "NHATPROCOM",
+    ["dmn_nhatdzvc10"] = "NHATPROCOM",
+    ["dmn_nhatdzvc11"] = "NHATPROCOM",
+    ["dmn_nhatdzvc12"] = "NHATPROCOM",
+    ["dmn_nhatdzvc16"] = "NHATPROCOM",
 }
