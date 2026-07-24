@@ -64,7 +64,7 @@ end)
 -- Nút điều khiển
 if not setfpscap then warn("Executor không hỗ trợ setfpscap().") end
 local enabled = true
-if setfpscap then setfpscap(1) end
+if setfpscap then setfpscap(2) end
 
 local button = Instance.new("TextButton", mainGui)
 button.Name = "DMN X TMQ"
