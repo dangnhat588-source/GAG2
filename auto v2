@@ -9,7 +9,7 @@ local Config = {
         "Venom Spitter", "Dragon's Breath", "Moon Bloom", "Venus Fly Trap", 
         "Hypno Bloom", "Gold"
     },
-    AFK_FPS = 1,
+    AFK_FPS = 5,
     Normal_FPS = 999999,
     Enable3DRenderingOnOFF = true
 }
