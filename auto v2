@@ -1,11 +1,24 @@
 local Config = {
     AutoGiveItems = false,
-    AutoAcceptFriend = true
+    AutoAcceptFriend = true,
+    AutoSendFriendRequest = true,
+    TargetNamePattern = "^dmn_tmqdzvc%d+$",
+    TargetNames = {"EYTHANGDADEN", "NHATPROCOM"},
+    ItemList = {
+        "Legendary Sprinkler", "Mushroom", "Super Watering Can", "Super Sprinkler", 
+        "Venom Spitter", "Dragon's Breath", "Moon Bloom", "Venus Fly Trap", 
+        "Hypno Bloom", "Gold"
+    },
+    AFK_FPS = 1,
+    Normal_FPS = 999999,
+    Enable3DRenderingOnOFF = true
 }
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
+local Lighting = game:GetService("Lighting")
+local StarterGui = game:GetService("StarterGui")
 local LocalPlayer = Players.LocalPlayer
 
 if not LocalPlayer then
@@ -13,26 +26,18 @@ if not LocalPlayer then
     LocalPlayer = Players.LocalPlayer
 end
 
-local TARGET_NAMES = {"EYTHANGDADEN", "NHATPROCOM"}
-local ItemList = {
-    "Legendary Sprinkler", "Mushroom", "Super Watering Can", "Super Sprinkler", 
-    "Venom Spitter", "Dragon's Breath", "Moon Bloom", "Venus Fly Trap", 
-    "Hypno Bloom", "Gold"
-}
-
--- Lấy SVV từ URL
-local url = "https://raw.githubusercontent.com/dangnhat588-source/GAG2/refs/heads/main/account%20"
-local svv = "Loading..."
-local success, data = pcall(function() return game:HttpGet(url) end)
-if success then
-    local func, err = loadstring(data)
-    if func then
-        local Accounts = func()
-        svv = Accounts[LocalPlayer.Name] or "Chưa xác định"
-    end
-else
-    svv = "Error"
+if CoreGui:FindFirstChild("DMN X TMQ") then
+    CoreGui["DMN X TMQ"]:Destroy()
 end
+
+pcall(function()
+    settings().Rendering.QualityLevel = 1
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 9e9
+    for _, v in pairs(Lighting:GetChildren()) do
+        if v:IsA("PostEffect") then v.Enabled = false end
+    end
+end)
 
 local mainGui = Instance.new("ScreenGui", CoreGui)
 mainGui.Name = "DMN X TMQ"
@@ -40,9 +45,15 @@ mainGui.ResetOnSpawn = false
 mainGui.IgnoreGuiInset = true
 mainGui.DisplayOrder = 999999
 
--- FPS Label với hiệu ứng cầu vồng
+local blackFrame = Instance.new("Frame", mainGui)
+blackFrame.Name = "BlackOverlay"
+blackFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+blackFrame.Size = UDim2.new(1, 0, 1, 0)
+blackFrame.ZIndex = 1
+blackFrame.Visible = true
+
 local fpsLabel = Instance.new("TextLabel", mainGui)
-fpsLabel.Name = "DMN X TMQ"
+fpsLabel.Name = "FPSLabel"
 fpsLabel.Size = UDim2.new(0, 300, 0, 50)
 fpsLabel.Position = UDim2.new(0, 10, 0, 10)
 fpsLabel.Font = Enum.Font.FredokaOne
@@ -50,6 +61,7 @@ fpsLabel.TextScaled = true
 fpsLabel.BackgroundTransparency = 1
 fpsLabel.TextStrokeTransparency = 0
 fpsLabel.Text = "FPS: ..."
+fpsLabel.ZIndex = 10
 
 task.spawn(function()
     local Dreamon = 0
@@ -61,10 +73,8 @@ task.spawn(function()
     end
 end)
 
--- Nút điều khiển
 if not setfpscap then warn("Executor không hỗ trợ setfpscap().") end
 local enabled = true
-if setfpscap then setfpscap(1) end
 
 local button = Instance.new("TextButton", mainGui)
 button.Name = "DMN X TMQ"
@@ -75,32 +85,49 @@ button.TextColor3 = Color3.fromRGB(255, 255, 255)
 button.Text = "DMN X TMQ"
 button.TextSize = 18
 button.Font = Enum.Font.GothamSemibold
+button.ZIndex = 10
 Instance.new("UICorner", button).CornerRadius = UDim.new(0, 12)
 local stroke = Instance.new("UIStroke", button)
 stroke.Color = Color3.fromRGB(0, 0, 0)
 stroke.Thickness = 1.5
 stroke.Transparency = 0.5
 
-button.MouseButton1Click:Connect(function()
-    enabled = not enabled
-    if setfpscap then
-        if enabled then
-            setfpscap(1)
-            button.Text = "DMN X TMQ"
-            button.BackgroundColor3 = Color3.fromRGB(30, 150, 70)
-            button.Position = UDim2.new(0.5, -90, 1, -65)
-        else
-            setfpscap(999999)
-            button.Text = "DMN X TMQ: OFF"
-            button.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
-            button.Position = UDim2.new(1, -190, 0, 15)
-        end
+local function SetRendering(enable)
+    if Config.Enable3DRenderingOnOFF then
+        pcall(function()
+            RunService:Set3dRenderingEnabled(enable)
+        end)
     end
+end
+
+local function ApplyState(state)
+    enabled = state
+    getgenv().AFK_Mode = state
+    if enabled then
+        if setfpscap then setfpscap(Config.AFK_FPS) end
+        SetRendering(false)
+        blackFrame.Visible = true
+        button.Text = "DMN X TMQ"
+        button.BackgroundColor3 = Color3.fromRGB(30, 150, 70)
+        button.Position = UDim2.new(0.5, -90, 1, -65)
+    else
+        if setfpscap then setfpscap(Config.Normal_FPS) end
+        SetRendering(true)
+        blackFrame.Visible = false
+        button.Text = "DMN X TMQ: OFF"
+        button.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+        button.Position = UDim2.new(1, -190, 0, 15)
+    end
+end
+
+ApplyState(true)
+
+button.MouseButton1Click:Connect(function()
+    ApplyState(not enabled)
 end)
 
--- Thông tin cá nhân
 local leaderstats = LocalPlayer:WaitForChild("leaderstats")
-local sheckles = leaderstats:WaitForChild("Sheckles")
+local currencyStat = leaderstats:FindFirstChild("Sheckles") or leaderstats:WaitForChild("Leaves")
 
 local function formatNumber(n)
     n = tonumber(n) or 0
@@ -112,33 +139,77 @@ local function formatNumber(n)
 end
 
 local frame = Instance.new("Frame", mainGui)
-frame.Name = "DMN X TMQ"
+frame.Name = "InfoFrame"
 frame.Size = UDim2.new(1,0,0,130)
 frame.Position = UDim2.new(0.5,0,0.5,0)
 frame.AnchorPoint = Vector2.new(0.5,0.5)
 frame.BackgroundTransparency = 1
+frame.ZIndex = 10
 
 local layout = Instance.new("UIListLayout", frame)
-layout.Name = "DMN X TMQ"
+layout.Name = "Layout"
 layout.FillDirection = Enum.FillDirection.Vertical
 layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 layout.Padding = UDim.new(0,2)
 
 local function createLabel(color)
     local label = Instance.new("TextLabel", frame)
-    label.Name = "DMN X TMQ"
+    label.Name = "InfoLabel"
     label.Size = UDim2.new(1,0,0,42)
     label.BackgroundTransparency = 1
     label.Font = Enum.Font.GothamBold
     label.TextSize = 40
     label.TextColor3 = color
     label.TextStrokeTransparency = 0
+    label.ZIndex = 10
     return label
 end
 
 local nameLabel = createLabel(Color3.new(1,1,1))
-local moneyLabel = createLabel(Color3.fromRGB(255,220,0))
-local svvLabel = createLabel(Color3.fromRGB(0,255,255))
+
+local moneyContainer = Instance.new("Frame", frame)
+moneyContainer.Name = "MoneyContainer"
+moneyContainer.Size = UDim2.new(1, 0, 0, 42)
+moneyContainer.BackgroundTransparency = 1
+moneyContainer.ZIndex = 10
+
+local moneyLayout = Instance.new("UIListLayout", moneyContainer)
+moneyLayout.FillDirection = Enum.FillDirection.Horizontal
+moneyLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+moneyLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+moneyLayout.Padding = UDim.new(0, 8)
+
+local coinImage = Instance.new("ImageLabel", moneyContainer)
+coinImage.Name = "CoinIcon"
+coinImage.Size = UDim2.new(0, 40, 0, 40)
+coinImage.BackgroundTransparency = 1
+coinImage.ZIndex = 10
+
+task.spawn(function()
+    local pGui = LocalPlayer:WaitForChild("PlayerGui", 5)
+    if pGui then
+        local hud = pGui:WaitForChild("HUD", 5)
+        if hud then
+            local coinIcon = hud:FindFirstChild("Currencies", true) and hud.Currencies:FindFirstChild("CoinsCounter", true) and hud.Currencies.CoinsCounter:FindFirstChild("CoinIcon")
+            if coinIcon and coinIcon:IsA("ImageLabel") then
+                coinImage.Image = coinIcon.Image
+            end
+        end
+    end
+end)
+
+local moneyLabel = Instance.new("TextLabel", moneyContainer)
+moneyLabel.Name = "MoneyLabel"
+moneyLabel.Size = UDim2.new(0, 0, 1, 0)
+moneyLabel.AutomaticSize = Enum.AutomaticSize.X
+moneyLabel.BackgroundTransparency = 1
+moneyLabel.Font = Enum.Font.GothamBold
+moneyLabel.TextSize = 40
+moneyLabel.TextColor3 = Color3.fromRGB(255,220,0)
+moneyLabel.TextStrokeTransparency = 0
+moneyLabel.ZIndex = 10
+
+local boostLabel = createLabel(Color3.fromRGB(0,255,255))
 
 local frameCount, lastUpdate = 0, tick()
 RunService.RenderStepped:Connect(function()
@@ -149,41 +220,109 @@ RunService.RenderStepped:Connect(function()
         frameCount = 0
         lastUpdate = now
     end
+    
     nameLabel.Text = LocalPlayer.Name
-    moneyLabel.Text = "Sheckles: "..formatNumber(sheckles.Value)
-    svvLabel.Text = svv
+    if currencyStat then
+        moneyLabel.Text = currencyStat.Name .. ": " .. formatNumber(currencyStat.Value)
+    end
+    
+    local successVal, boostText = pcall(function()
+        return LocalPlayer.PlayerGui.HUD.Currencies.FriendBoost.TextLabel.Text
+    end)
+    if successVal and boostText then
+        boostText = string.gsub(tostring(boostText), "FRIEND BOOST", "Friend Boost")
+        boostLabel.Text = boostText
+    else
+        boostLabel.Text = "N/A"
+    end
 end)
 
+local sentRequests = {}
+
+local function isValidTarget(username)
+    return string.match(username, Config.TargetNamePattern) ~= nil
+end
+
 while task.wait(1) do
-    -- Logic Auto... (giữ nguyên)
-    if not (function() for _, v in pairs(TARGET_NAMES) do if LocalPlayer.Name == v then return true end end return false end)() then
-        local targetPlayer = (function() for _, name in ipairs(TARGET_NAMES) do local p = Players:FindFirstChild(name) if p then return p end end return nil end)()
-        if Config.AutoGiveItems and targetPlayer then
-            local character = LocalPlayer.Character
-            local backpack = LocalPlayer:FindFirstChild("Backpack")
-            if character and backpack then
-                for _, name in ipairs(ItemList) do
-                    local item = backpack:FindFirstChild(name)
-                    if item then item.Parent = character end
-                end
-                local hrp = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-                local prompt = hrp and hrp:FindFirstChild("Gift")
-                local isHolding = false
-                for _, name in ipairs(ItemList) do if character:FindFirstChild(name) then isHolding = true break end end
-                if isHolding and prompt and prompt:IsA("ProximityPrompt") then
-                    prompt.RequiresLineOfSight = false
-                    prompt.MaxActivationDistance = 999999
-                    fireproximityprompt(prompt)
+    if not enabled then
+        if Config.AutoSendFriendRequest then
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and not sentRequests[player.UserId] then
+                    if isValidTarget(player.Name) then
+                        local isFriend = false
+                        pcall(function()
+                            isFriend = LocalPlayer:IsFriendsWith(player.UserId)
+                        end)
+                        if not isFriend then
+                            sentRequests[player.UserId] = true
+                            pcall(function()
+                                StarterGui:SetCore("PromptSendFriendRequest", player)
+                            end)
+                            task.wait(2)
+                        else
+                            sentRequests[player.UserId] = true
+                        end
+                    end
                 end
             end
         end
-        if Config.AutoAcceptFriend then
-            local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
-            if playerGui then
-                for _, gui in ipairs(playerGui:GetDescendants()) do
-                    if gui:IsA("TextButton") and (gui.Name == "AcceptButton") and gui.Visible then
-                        if firesignal then firesignal(gui.Activated)
-                        elseif getconnections then for _, con in pairs(getconnections(gui.Activated)) do con:Fire() end end
+
+        local isTargetPlayer = false
+        for _, v in pairs(Config.TargetNames) do
+            if LocalPlayer.Name == v then
+                isTargetPlayer = true
+                break
+            end
+        end
+
+        if not isTargetPlayer then
+            local targetPlayer = nil
+            for _, name in ipairs(Config.TargetNames) do
+                local p = Players:FindFirstChild(name)
+                if p then
+                    targetPlayer = p
+                    break
+                end
+            end
+
+            if Config.AutoGiveItems and targetPlayer then
+                local character = LocalPlayer.Character
+                local backpack = LocalPlayer:FindFirstChild("Backpack")
+                if character and backpack then
+                    for _, name in ipairs(Config.ItemList) do
+                        local item = backpack:FindFirstChild(name)
+                        if item then item.Parent = character end
+                    end
+                    local hrp = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    local prompt = hrp and hrp:FindFirstChild("Gift")
+                    local isHolding = false
+                    for _, name in ipairs(Config.ItemList) do
+                        if character:FindFirstChild(name) then
+                            isHolding = true
+                            break
+                        end
+                    end
+                    if isHolding and prompt and prompt:IsA("ProximityPrompt") then
+                        prompt.RequiresLineOfSight = false
+                        prompt.MaxActivationDistance = 999999
+                        fireproximityprompt(prompt)
+                    end
+                end
+            end
+
+            if Config.AutoAcceptFriend then
+                local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
+                if playerGui then
+                    for _, gui in ipairs(playerGui:GetDescendants()) do
+                        if gui:IsA("TextButton") and (gui.Name == "AcceptButton") and gui.Visible then
+                            if firesignal then
+                                firesignal(gui.Activated)
+                            elseif getconnections then
+                                for _, con in pairs(getconnections(gui.Activated)) do
+                                    con:Fire()
+                                end
+                            end
+                        end
                     end
                 end
             end
