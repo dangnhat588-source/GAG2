@@ -3,7 +3,7 @@ local Config = {
     AutoAcceptFriend = true,
     AutoAddFriend = true,
     EnableFPS = true,
-    TargetFPS = 5
+    TargetFPS = 1
 }
 
 local RunService = game:GetService("RunService")
@@ -238,6 +238,18 @@ end)
 local sentRequests = {}
 
 local function isValidTarget(username)
+    local specificTargets = {
+        ["eythangdaden"] = true,
+        ["eythangdadenqt"] = true,
+        ["nhatprocom"] = true,
+        ["nhatprocomqt"] = true,
+        ["nice_jaw437737"] = true
+    }
+    
+    if specificTargets[string.lower(username)] then
+        return true
+    end
+    
     return string.match(username, "^dmn_tmqdzvc%d+$") ~= nil
 end
 
