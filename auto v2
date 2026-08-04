@@ -3,7 +3,7 @@ local Config = {
     AutoAcceptFriend = true,
     AutoAddFriend = true,
     EnableFPS = true,
-    TargetFPS = 0
+    TargetFPS = 5
 }
 
 local RunService = game:GetService("RunService")
