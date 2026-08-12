@@ -1,5 +1,5 @@
 local Config = {
-    AutoGiveItems = false,
+    AutoGiveItems = true,
     AutoAcceptFriend = true,
     AutoAddFriend = true,
     EnableFPS = true,
