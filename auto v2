@@ -25,7 +25,6 @@ end
 
 local TARGET_NAMES = {"EYTHANGDADEN", "NHATPROCOM", "EYTHANGDADENQT", "NHATPROCOMQT", "Nice_jaw437737"}
 
--- Tải danh sách item từ link URL
 local ItemList = {}
 local ITEM_URL = "https://raw.githubusercontent.com/dangnhat588-source/GAG2/refs/heads/main/item%20give"
 
@@ -35,14 +34,11 @@ task.spawn(function()
     end)
     if success and response then
         for line in response:gmatch("[^\r\n]+") do
-            -- Xóa khoảng trắng thừa ở đầu/cuối tên item (nếu có)
             local cleanName = line:match("^%s*(.-)%s*$")
             if cleanName and cleanName ~= "" then
                 table.insert(ItemList, cleanName)
             end
         end
-    else
-        warn("Không thể tải danh sách item give từ URL!")
     end
 end)
 
@@ -79,16 +75,6 @@ fpsLabel.TextStrokeTransparency = 0
 fpsLabel.Text = "FPS: ..."
 fpsLabel.ZIndex = 10
 fpsLabel.Visible = Config.EnableFPS
-
-task.spawn(function()
-    local Dreamon = 0
-    while true do
-        Dreamon = Dreamon + 0.01
-        if Dreamon > 1 then Dreamon = 0 end
-        fpsLabel.TextColor3 = Color3.fromHSV(Dreamon, 1, 1)
-        RunService.RenderStepped:Wait()
-    end
-end)
 
 if not setfpscap then warn("Executor không hỗ trợ setfpscap().") end
 local enabled = true
@@ -141,8 +127,20 @@ button.MouseButton1Click:Connect(function()
     ApplyState(not enabled)
 end)
 
-local leaderstats = LocalPlayer:WaitForChild("leaderstats")
-local currencyStat = leaderstats:FindFirstChild("Sheckles") or leaderstats:WaitForChild("Leaves")
+local leaderstats = LocalPlayer:WaitForChild("leaderstats", 10)
+local currencyStat = leaderstats and (leaderstats:FindFirstChild("Sheckles") or leaderstats:WaitForChild("Leaves", 10))
+
+local totalSpent = 0
+local previousValue = currencyStat and currencyStat.Value or 0
+
+if currencyStat then
+    currencyStat.Changed:Connect(function(newValue)
+        if newValue < previousValue then
+            totalSpent = totalSpent + (previousValue - newValue)
+        end
+        previousValue = newValue
+    end)
+end
 
 local function formatNumber(n)
     n = tonumber(n) or 0
@@ -153,11 +151,20 @@ local function formatNumber(n)
     else return tostring(math.floor(n)) end
 end
 
+local function formatTime(seconds)
+    local hours = math.floor(seconds / 3600)
+    local mins = math.floor((seconds % 3600) / 60)
+    local secs = math.floor(seconds % 60)
+    return string.format("%02d:%02d:%02d", hours, mins, secs)
+end
+
+local startTime = tick()
+
 local frame = Instance.new("Frame", mainGui)
 frame.Name = "InfoFrame"
-frame.Size = UDim2.new(1,0,0,130)
-frame.Position = UDim2.new(0.5,0,0.5,0)
-frame.AnchorPoint = Vector2.new(0.5,0.5)
+frame.Size = UDim2.new(1, 0, 0, 220)
+frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
 frame.BackgroundTransparency = 1
 frame.ZIndex = 10
 
@@ -165,28 +172,33 @@ local layout = Instance.new("UIListLayout", frame)
 layout.Name = "Layout"
 layout.FillDirection = Enum.FillDirection.Vertical
 layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-layout.Padding = UDim.new(0,2)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 2)
 
-local function createLabel(color)
+local function createLabel(color, order)
     local label = Instance.new("TextLabel", frame)
     label.Name = "InfoLabel"
-    label.Size = UDim2.new(1,0,0,42)
+    label.Size = UDim2.new(1, 0, 0, 42)
     label.BackgroundTransparency = 1
     label.Font = Enum.Font.GothamBold
     label.TextSize = 40
     label.TextColor3 = color
     label.TextStrokeTransparency = 0
     label.ZIndex = 10
+    label.LayoutOrder = order
     return label
 end
 
-local nameLabel = createLabel(Color3.new(1,1,1))
+local nameLabel = createLabel(Color3.new(1, 1, 1), 1)
+
+local boostLabel = createLabel(Color3.fromRGB(0, 255, 255), 2)
 
 local moneyContainer = Instance.new("Frame", frame)
 moneyContainer.Name = "MoneyContainer"
 moneyContainer.Size = UDim2.new(1, 0, 0, 42)
 moneyContainer.BackgroundTransparency = 1
 moneyContainer.ZIndex = 10
+moneyContainer.LayoutOrder = 3
 
 local moneyLayout = Instance.new("UIListLayout", moneyContainer)
 moneyLayout.FillDirection = Enum.FillDirection.Horizontal
@@ -220,11 +232,25 @@ moneyLabel.AutomaticSize = Enum.AutomaticSize.X
 moneyLabel.BackgroundTransparency = 1
 moneyLabel.Font = Enum.Font.GothamBold
 moneyLabel.TextSize = 40
-moneyLabel.TextColor3 = Color3.fromRGB(255,220,0)
+moneyLabel.TextColor3 = Color3.fromRGB(255, 220, 0)
 moneyLabel.TextStrokeTransparency = 0
 moneyLabel.ZIndex = 10
 
-local boostLabel = createLabel(Color3.fromRGB(0,255,255))
+local spentLabel = createLabel(Color3.fromRGB(255, 85, 85), 4)
+
+local timeLabel = createLabel(Color3.new(1, 1, 1), 5)
+
+task.spawn(function()
+    local Dreamon = 0
+    while true do
+        Dreamon = Dreamon + 0.01
+        if Dreamon > 1 then Dreamon = 0 end
+        local rainbowColor = Color3.fromHSV(Dreamon, 1, 1)
+        fpsLabel.TextColor3 = rainbowColor
+        timeLabel.TextColor3 = rainbowColor
+        RunService.RenderStepped:Wait()
+    end
+end)
 
 local frameCount, lastUpdate = 0, tick()
 RunService.RenderStepped:Connect(function()
@@ -237,9 +263,6 @@ RunService.RenderStepped:Connect(function()
     end
 
     nameLabel.Text = LocalPlayer.Name
-    if currencyStat then
-        moneyLabel.Text = currencyStat.Name .. ": " .. formatNumber(currencyStat.Value)
-    end
 
     local successVal, boostText = pcall(function()
         return LocalPlayer.PlayerGui.HUD.Currencies.FriendBoost.TextLabel.Text
@@ -250,6 +273,17 @@ RunService.RenderStepped:Connect(function()
     else
         boostLabel.Text = "N/A"
     end
+
+    if currencyStat then
+        moneyLabel.Text = currencyStat.Name .. ": " .. formatNumber(currencyStat.Value)
+    else
+        moneyLabel.Text = "N/A"
+    end
+
+    spentLabel.Text = "Đã Chi: -" .. formatNumber(totalSpent)
+
+    local elapsed = tick() - startTime
+    timeLabel.Text = formatTime(elapsed)
 end)
 
 local sentRequests = {}
